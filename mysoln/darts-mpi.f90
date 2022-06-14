@@ -1,10 +1,12 @@
-program darts-mpi
+program darts_mpi
    
    ! Add module use statements
-   use mpi
+   ! use mpi
    use lcgenerator
    
    implicit none
+
+   include 'mpif.h'
    
    integer*8 :: num_trials = 1000000, i = 0, Ncirc = 0
    real :: pi = 0.0, x = 0.0, y = 0.0, r = 1.0
@@ -14,17 +16,17 @@ program darts-mpi
    ! Add mpi variables
    integer :: rank, size, error, p, status
    integer :: root = 0
-   real    :: my_num_trails
+   real    :: my_num_trials
    integer*8 :: Ncirc_temp
    
    ! initialize mpi
-   MPI_Init(error)
-   MPI_Comm_size(MPI_COMM_WORLD, size, error)
-   MPI_Comm_rank(MPI_COMM_WORLD, rank, error)
+   call MPI_Init(error)
+   call MPI_Comm_size(MPI_COMM_WORLD, size, error)
+   call MPI_Comm_rank(MPI_COMM_WORLD, rank, error)
    
    ! Set the number of trials for this processor
-   my_num_trails = num_trials / size
-   if (rank .lt. mod(num_trials,size)) my_num_trails = my_num_trails + 1
+   my_num_trials = num_trials / size
+   if (rank .lt. mod(num_trials,size)) my_num_trials = my_num_trials + 1
    call seed(rank)
    
    ! modify the loop to only iterate through my_num_trials for the current processor
@@ -39,10 +41,10 @@ program darts-mpi
 
    ! Send the number in the circle to the master process, recieve from 
    if (rank .ne. root) then
-      MPI_send(Ncirc, 1, MPI_LONG, root, rank, MPI_COMM_WORLD)
+      call MPI_send(Ncirc, 1, MPI_LONG, root, rank, MPI_COMM_WORLD)
    else
       do p = 1, size-1
-         MPI_recv(Ncirc_temp, 1, MPI_LONG, p, p, MPI_COMM_WORLD, status, error)
+         call MPI_recv(Ncirc_temp, 1, MPI_LONG, p, p, MPI_COMM_WORLD, status, error)
          Ncirc = Ncirc + Ncirc_temp
       enddo
 
@@ -54,4 +56,4 @@ program darts-mpi
       
    endif
 
-end program darts-mpi
+end program darts_mpi
