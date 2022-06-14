@@ -5,7 +5,7 @@ module lcgenerator
  contains
 
  subroutine seed(s)
-   integer :: s
+   integer, intent(in) :: s
    random_last = s
  end subroutine
 

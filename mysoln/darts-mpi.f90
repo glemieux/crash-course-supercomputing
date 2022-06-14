@@ -25,10 +25,10 @@ program darts-mpi
    ! Set the number of trials for this processor
    my_num_trails = num_trials / size
    if (rank .lt. mod(num_trials,size)) my_num_trails = my_num_trails + 1
+   call seed(rank)
    
-   r2 = r*r
-
    ! modify the loop to only iterate through my_num_trials for the current processor
+   r2 = r*r
    do i = 1, my_num_trials
       x = lcgrandom()
       y = lcgrandom()
@@ -42,7 +42,7 @@ program darts-mpi
       MPI_send(Ncirc, 1, MPI_LONG, root, rank, MPI_COMM_WORLD)
    else
       do p = 1, size-1
-         MPI_recv(Ncirc_temp, 1, MPI_LONG, p, root, MPI_COMM_WORLD, status, error)
+         MPI_recv(Ncirc_temp, 1, MPI_LONG, p, p, MPI_COMM_WORLD, status, error)
          Ncirc = Ncirc + Ncirc_temp
       enddo
 
